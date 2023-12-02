@@ -1,0 +1,22 @@
+{
+  "name": "railroad",
+  "version": "1.0.0",
+  "description": "Railroad system backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Furatus/RailRoad.git"
+  },
+  "keywords": [
+    "railroad"
+  ],
+  "author": "Aubin & FX",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Furatus/RailRoad/issues"
+  },
+  "homepage": "https://github.com/Furatus/RailRoad#readme"
+}
