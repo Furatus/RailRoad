@@ -18,5 +18,14 @@
   "bugs": {
     "url": "https://github.com/Furatus/RailRoad/issues"
   },
-  "homepage": "https://github.com/Furatus/RailRoad#readme"
+  "homepage": "https://github.com/Furatus/RailRoad#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.0.2",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
 }
