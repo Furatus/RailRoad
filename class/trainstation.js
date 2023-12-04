@@ -14,7 +14,7 @@ export default class trainstation {
     image: String
   });
   static async createTrainStationOnDatabase(serverAddress, name, open_hour, close_hour, image) {
-    await mongoose.connect(serverAddress);
+    await mongoose.connect(process.env.MONGO_ADDRESS);
     const pushTrainStation= mongoose.model("trainstation", this.trainstationSchema);
     const sendTrainStation = new pushTrainStation({
       name: name,
@@ -49,4 +49,20 @@ static async callbackGetTrainStationbyName(req, res) {
   console.log(await trainstationModel.findOne({name: name}).exec())
   res.send('OK')
 }
+  static async callbackDeleteTrainStationbyId(req, res) {
+      await mongoose.connect(process.env.MONGO_ADDRESS);
+      const id = req.body.id;
+      const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
+      const deletionResult = await trainstationModel.deleteOne({ _id: id }).exec();
+      console.log(deletionResult);
+      res.send("OK");
+  }
+  static async callbackUpdateTrainStation(req, res) {
+    await mongoose.connect(process.env.MONGO_ADDRESS);
+    const body = req.body
+    console.log(body)
+    const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
+    await trainstationModel.findByIdAndUpdate(body.id,{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
+    res.send("OK");
+  }
 }
