@@ -16,7 +16,7 @@ export class user {
         this._role = role;
     }
     static async createUserOnDatabase(email,pseudo,password,role) {
-        await mongoose.connect(serverAddress);
+        await mongoose.connect(process.env.MONGO_ADDRESS);
 
         const pushUser = mongoose.model("user",this.userSchema);
         const sendUser = new pushUser({
@@ -29,12 +29,11 @@ export class user {
         return "ok";
     }
 
-    static async getUserOnDatabaseById(serverAddress, id) {
-        await mongoose.connect()
-        const id = req.params.id;
-    const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-    console.log(typeof (await trainstationModel.findOne({_id:id}).exec()))
-    res.send('OK');
+    static async getUserOnDatabaseById(id) {
+        await mongoose.connect(process.env.MONGO_ADDRESS)
+    const userModel = mongoose.model("user", this.userSchema);
+    const user = await userModel.findOne({_id:id}).exec();
+    return user;
     }
 
     static async callbackCreateUser(req,res) {
@@ -45,7 +44,9 @@ export class user {
     }
 
     static async callbackGetUserById(req,res) {
-        const id = req.params.id;
-
+        const getId = req.params.id;
+        const getUser = await user.getUserOnDatabaseById(getId);
+        res.status(200);
+        res.send(getUser);
     }
 }
