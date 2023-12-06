@@ -43,6 +43,14 @@ export class user {
         return user;
     }
 
+    static async updateUserOnDatabase(id,userObj) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        await userModel.findByIdAndUpdate(id,{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
+        return "ok";
+
+    }
+
     static async callbackCreateUser(req,res) {
         const userParams = req.body;
         const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password,userParams.role);
@@ -62,5 +70,13 @@ export class user {
         const getUser = await user.getUserOnDatabaseByName(getName);
         res.status(200);
         res.send(getUser);
+    }
+
+    static async callbackUpdateUser (req, res) {
+        const userParams = req.body;
+        const userObj = new user(userParams._email,userParams._pseudo,userParams.password,userParams.role);
+        const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
+        res.status(200);
+        res.send(updateUser);
     }
 }
