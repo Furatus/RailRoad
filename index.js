@@ -1,4 +1,4 @@
-import user from './routes/user.route.js';
+import userRouter from './routes/user.route.js';
 import trainstationRouter from './routes/trainstation.route.js';
 import bodyParser from "body-parser";
 //import train from './routes/train.route.js';
@@ -9,7 +9,7 @@ const app = express();
 
 app.use(bodyParser.json());
 
-app.use("/api/user",user)
+app.use("/api/user",userRouter)
 app.use("/api/trainstation",trainstationRouter)
 //app.use("/api/train",train)
 

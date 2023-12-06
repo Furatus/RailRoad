@@ -30,10 +30,17 @@ export class user {
     }
 
     static async getUserOnDatabaseById(id) {
-        await mongoose.connect(process.env.MONGO_ADDRESS)
+        await mongoose.connect(process.env.MONGO_ADDRESS);
     const userModel = mongoose.model("user", this.userSchema);
     const user = await userModel.findOne({_id:id}).exec();
     return user;
+    }
+
+    static async getUserOnDatabaseByName(name) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        const user = await userModel.findOne({pseudo:name}).exec();
+        return user;
     }
 
     static async callbackCreateUser(req,res) {
@@ -46,6 +53,13 @@ export class user {
     static async callbackGetUserById(req,res) {
         const getId = req.params.id;
         const getUser = await user.getUserOnDatabaseById(getId);
+        res.status(200);
+        res.send(getUser);
+    }
+
+    static async callbackGetUserByName(req,res) {
+        const getName = req.params.name;
+        const getUser = await user.getUserOnDatabaseByName(getName);
         res.status(200);
         res.send(getUser);
     }
