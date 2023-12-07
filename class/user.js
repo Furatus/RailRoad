@@ -47,9 +47,14 @@ export class user {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", this.userSchema);
         await userModel.findByIdAndUpdate(id,{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
-        console.log(userObj._pseudo);
         return userObj;
+    }
 
+    static async deleteUserOnDatabase(id) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        await userModel.deleteOne({ _id: id }).exec();
+        return "Deleted user";
     }
 
     static async callbackCreateUser(req,res) {
@@ -79,5 +84,12 @@ export class user {
         const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
         res.status(200);
         res.send(updateUser);
+    }
+    
+    static async callbackDeleteUser (req, res) {
+        const reqParams = req.body;
+        const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
+        res.status(200);
+        res.send(deleteUser);
     }
 }
