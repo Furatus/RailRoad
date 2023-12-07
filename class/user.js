@@ -47,7 +47,8 @@ export class user {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", this.userSchema);
         await userModel.findByIdAndUpdate(id,{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
-        return "ok";
+        console.log(userObj._pseudo);
+        return userObj;
 
     }
 
@@ -74,7 +75,7 @@ export class user {
 
     static async callbackUpdateUser (req, res) {
         const userParams = req.body;
-        const userObj = new user(userParams._email,userParams._pseudo,userParams.password,userParams.role);
+        const userObj = new user(userParams.email,userParams.pseudo,userParams.password,userParams.role);
         const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
         res.status(200);
         res.send(updateUser);
