@@ -16,7 +16,7 @@ export class user {
         this._role = role;
     }
     static async createUserOnDatabase(email,pseudo,password,role) {
-        await mongoose.connect(serverAddress);
+        await mongoose.connect(process.env.MONGO_ADDRESS);
 
         const pushUser = mongoose.model("user",this.userSchema);
         const sendUser = new pushUser({
@@ -29,12 +29,32 @@ export class user {
         return "ok";
     }
 
-    static async getUserOnDatabaseById(serverAddress, id) {
-        await mongoose.connect()
-        const id = req.params.id;
-    const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-    console.log(typeof (await trainstationModel.findOne({_id:id}).exec()))
-    res.send('OK');
+    static async getUserOnDatabaseById(id) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+    const userModel = mongoose.model("user", this.userSchema);
+    const user = await userModel.findOne({_id:id}).exec();
+    return user;
+    }
+
+    static async getUserOnDatabaseByName(name) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        const user = await userModel.findOne({pseudo:name}).exec();
+        return user;
+    }
+
+    static async updateUserOnDatabase(id,userObj) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        await userModel.findByIdAndUpdate(id,{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
+        return userObj;
+    }
+
+    static async deleteUserOnDatabase(id) {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", this.userSchema);
+        await userModel.deleteOne({ _id: id }).exec();
+        return "Deleted user";
     }
 
     static async callbackCreateUser(req,res) {
@@ -45,7 +65,31 @@ export class user {
     }
 
     static async callbackGetUserById(req,res) {
-        const id = req.params.id;
+        const getId = req.params.id;
+        const getUser = await user.getUserOnDatabaseById(getId);
+        res.status(200);
+        res.send(getUser);
+    }
 
+    static async callbackGetUserByName(req,res) {
+        const getName = req.params.name;
+        const getUser = await user.getUserOnDatabaseByName(getName);
+        res.status(200);
+        res.send(getUser);
+    }
+
+    static async callbackUpdateUser (req, res) {
+        const userParams = req.body;
+        const userObj = new user(userParams.email,userParams.pseudo,userParams.password,userParams.role);
+        const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
+        res.status(200);
+        res.send(updateUser);
+    }
+    
+    static async callbackDeleteUser (req, res) {
+        const reqParams = req.body;
+        const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
+        res.status(200);
+        res.send(deleteUser);
     }
 }
