@@ -72,19 +72,39 @@ export default class train {
         const params = req.query;
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const trainModel = mongoose.model("train", train.trainSchema);
-        let results = await trainModel.find().exec();
-        switch (params) {
-            case params.start_station!==undefined:
-                results = await results.find({start_station: start_station }).exec()
-            case params.end_station!==undefined:
-                return await results.find({end_station: end_station}).exec()
-            default:
-                console.log("Aucun resultat trouvé")
-            break
+        let filters = {}
+        let tri = {}
+        if ( params.start_station!==undefined){
+            filters= Object.assign(filters, {start_station: params.start_station});
         }
-    console.log(results);
+
+        if ( params.end_station!==undefined){
+            filters= Object.assign(filters, {end_station: params.end_station});
+        }
+        if ( params.date!==undefined){
+            filters= Object.assign(filters, {end_station: params.date});
+        }
+
+        if ( params.sortDate!==undefined){
+            console.log(typeof params.sortDate)
+            if (params.sortDate==='asc'){
+                tri= Object.assign(tri, {time_of_departure: 1});
+            }
+            else if (params.sortDate==='desc'){
+                tri= Object.assign(tri, {time_of_departure: -1});
+            }
+            else {
+                res.send('date doit etre asc ou desc')
+
+            }
+        }
+        console.log('les filtres',filters)
+        console.log('le tri',tri)
+
+        const results = await trainModel.find(filters).sort(tri).exec()
+        if(JSON.stringify(results)==='[]') {
+            res.send("Aucun resultat trouvé")
+        }
+        else res.send(results);
     }
-
-
-
 }
