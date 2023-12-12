@@ -74,6 +74,7 @@ export default class train {
         const trainModel = mongoose.model("train", train.trainSchema);
         let filters = {}
         let tri = {}
+        let limit=10
         if ( params.start_station!==undefined){
             filters= Object.assign(filters, {start_station: params.start_station});
         }
@@ -83,6 +84,9 @@ export default class train {
         }
         if ( params.date!==undefined){
             filters= Object.assign(filters, {end_station: params.date});
+        }
+        if ( params.limit!==undefined){
+            limit= params.limit
         }
 
         if ( params.sortDate!==undefined){
@@ -101,7 +105,7 @@ export default class train {
         console.log('les filtres',filters)
         console.log('le tri',tri)
 
-        const results = await trainModel.find(filters).sort(tri).exec()
+        const results = await trainModel.find(filters).sort(tri).limit(limit).exec()
         if(JSON.stringify(results)==='[]') {
             res.send("Aucun resultat trouvé")
         }
