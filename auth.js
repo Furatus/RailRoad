@@ -13,17 +13,16 @@ export default async function mwVerifytoken(req,res,next) {
 
     try {
      const decoded = jwt.verify(reqToken,process.env.PASSPHRASE_TOKEN);
-     
      try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", user.userSchema);
-        const founduser = await userModel.findOne({ pseudo: decoded }).exec();
+        const foundUser = await userModel.findOne({ pseudo: decoded.pseudo }).exec();
     
-            if (!founduser) {
+            if (!foundUser) {
                 return res.status(403).send("403 - Access Denied \nInvalid user.");
             }
     
-            req.user = founduser;
+            req.user = foundUser;
         }
         catch (error) {
             return res.status(500).send("500 - Internal Server Error");
@@ -35,6 +34,9 @@ export default async function mwVerifytoken(req,res,next) {
     }
 }
 
+/*
+keeping this old function in case of the new doesn't work
+
 export function mwAuthorizeRole(requiredRight) {
     return async function(req,res,next) {
     const userRole = req.user.role;
@@ -43,7 +45,7 @@ export function mwAuthorizeRole(requiredRight) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const roleModel = mongoose.model("role", role.roleSchema);
         const foundRole = await roleModel.findOne({role: userRole}).exec();
-    if (!foundRole || !foundRole.permissions.includes(requiredRight)){
+    if (!foundRole || !requiredRight.some(right => foundRole.permissions.includes(right))){
         res.status(403).send("403 - Access Denied \nyou must have more permissions to access this ressource.");
         req.user.isValid = false;
     }
@@ -55,4 +57,56 @@ catch (error) {
     return res.status(500).send("500 - Internal Server Error");
 }
     }
+}
+*/
+
+export function mwAuthorizeRole(requiredRights) {
+    return async function(req, res, next) {
+        const userRole = req.user.role;
+        let usedPermission = null;
+        
+        try {
+            await mongoose.connect(process.env.MONGO_ADDRESS);
+            const roleModel = mongoose.model("role", role.roleSchema);
+            const foundRole = await roleModel.findOne({ role: userRole }).exec();
+
+            if (!foundRole || !requiredRights.some(right => {
+                if (foundRole.permissions.includes(right)) {
+                    usedPermission = right;
+                    return true;
+                }
+                return false;
+            })) {
+                res.status(403).send("403 - Access Denied \nyou must have more permissions to access this ressource.");
+                req.user.isValid = false;
+            } else {
+                req.user.usedPermission = usedPermission;
+                next();
+            }
+        } catch (error) {
+            return res.status(500).send("500 - Internal Server Error");
+        }
+    }
+}
+
+export async function mwVerifyIfSelf(req,res,next) {
+    try {
+    const username = req.user.pseudo;
+    if (req.user.usedPermission.startsWith('self', 0)) { 
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const userModel = mongoose.model("user", user.userSchema);
+        const foundUser = await userModel.findOne({_id: req.body.id}).exec();
+    if (!foundUser || foundUser.pseudo !== username){
+        res.status(403).send("403 - Forbidden \nyou're not allowed to modify other users");
+        req.user.isValid = false;
+    }
+    else {
+    next();
+    }
+}
+else next();
+}
+catch (error) {
+    return res.status(500).send("500 - Internal Server Error");
+}
 }

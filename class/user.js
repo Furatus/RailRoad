@@ -111,26 +111,37 @@ export class user {
     }
     
     static async callbackDeleteUser (req, res) {
+        try {
+        if (req.user.isValid === false) throw new error
         const reqParams = req.body;
         const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
         res.status(200);
         res.send(deleteUser);
+        } catch (error) {
+        return;
+        }
     }
     static async callbackLogin(req, res) {
+        try{
         const username = req.body.username;
-        const password = req.body.password
+        const password = req.body.password;
         if (username === undefined || username === "" || username === null) {
             return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         }
         const databaseUser = await user.getUserOnDatabaseByName(username);
+        console.log(databaseUser);
+        if (!databaseUser.password || !databaseUser.pseudo) return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         if (databaseUser.password === password) {
-            const token = jwt.sign(databaseUser.pseudo,process.env.PASSPHRASE_TOKEN);
+            const token = jwt.sign({ pseudo: databaseUser.pseudo },process.env.PASSPHRASE_TOKEN,{expiresIn : "1d"});
             res.status(200);
             res.json(token);
         }
         else {
             res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         }
-        
+    }
+    catch (error) {
+        return res.status(500).send("500 - Internal server error");
+    }
     }
 }
