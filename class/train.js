@@ -1,4 +1,3 @@
-import mangoose from 'mongoose';
 import mongoose from "mongoose";
 export default class train {
     constructor(id, name, open_hour, close_hour, image) {
