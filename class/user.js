@@ -78,8 +78,6 @@ export class user {
     }
 
     static async callbackGetUserById(req,res) {
-        //req.user = {};
-        //req.user.isValid = true;
         try {
         if (req.user.isValid === false) throw new error
         const getId = req.params.id;
