@@ -1,7 +1,7 @@
 import userRouter from './routes/user.route.js';
 import trainstationRouter from './routes/trainstation.route.js';
+import trainRouter from './routes/train.route.js';
 import bodyParser from "body-parser";
-//import train from './routes/train.route.js';
 import express from 'express';
 import 'dotenv/config';
 
@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 app.use("/api/user",userRouter)
 app.use("/api/trainstation",trainstationRouter)
-//app.use("/api/train",train)
+app.use("/api/train",trainRouter)
 
 const port = 3000;
 app.listen(port, () => {
