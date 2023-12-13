@@ -1,6 +1,7 @@
 import jwt  from "jsonwebtoken";
 import mongoose from "mongoose";
 import { user } from "./class/user.js";
+import { role } from "./class/role.js";
 
 export default async function mwVerifytoken(req,res,next) {
     const reqToken = req.headers.authorization;
@@ -34,16 +35,24 @@ export default async function mwVerifytoken(req,res,next) {
     }
 }
 
-export function mwAuthorizeRole(requiredRole) {
-    return function(req,res,next) {
+export function mwAuthorizeRole(requiredRight) {
+    return async function(req,res,next) {
     const userRole = req.user.role;
     
-    if (userRole !== requiredRole){
+    try {
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const roleModel = mongoose.model("role", role.roleSchema);
+        const foundRole = await roleModel.findOne({role: userRole}).exec();
+    if (!foundRole || !foundRole.permissions.includes(requiredRight)){
         res.status(403).send("403 - Access Denied \nyou must have more permissions to access this ressource.");
         req.user.isValid = false;
     }
     else {
     next();
     }
+}
+catch (error) {
+    return res.status(500).send("500 - Internal Server Error");
+}
     }
 }
