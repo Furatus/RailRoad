@@ -12,6 +12,7 @@ app.use(bodyParser.json());
 app.use("/api/user",userRouter)
 app.use("/api/trainstation",trainstationRouter)
 app.use("/api/train",trainRouter)
+app.use("/api/ticket",ticketRouter)
 
 const port = 3000;
 app.listen(port, () => {
