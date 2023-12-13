@@ -1,5 +1,5 @@
 # Version stable
-FROM node:18-alpine
+FROM node:20.10-alpine3.19
 ENV NODE_ENV production
 # Définition du dossier de travail
 WORKDIR /app/railroad/
@@ -12,5 +12,5 @@ RUN --mount=type=cache,target=/opt/result-node-app/.npm \
     npm clean-install --only=production
 # Définition des permissions et copie du code source restant après l'installation des dépendances.
 COPY . .
-EXPOSE 8888
+EXPOSE 3000
 CMD ["npm","start"]
