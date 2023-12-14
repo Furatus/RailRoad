@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import train from "./train.js";
 
 export default class ticket {
     constructor(id, id_user, id_train, isValidate) {
@@ -29,7 +30,18 @@ export default class ticket {
 
     static async callbackCreateTicket(req, res) {
         const ticketParams = req.body;
-        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train, ticketParams.isValidate);
+        //Rechercher dans la base un train qui correspond à l'id
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const trainModel = mongoose.model("train", train.trainSchema);
+        const trainFound = await trainModel.findOne({ _name: req.body.name }).exec();
+        console.log(trainFound);
+        if (trainFound == null) {
+            res.status(404);
+            res.send("Train not found");
+            return;
+        }
+
+        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train, "false");
         res.status(200);
         res.send(ticketCreated);
     }
@@ -46,7 +58,7 @@ export default class ticket {
     static async callbackGetAllTickets(req, res) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
-        const results = await ticketModel.find().populate('id_user').populate('id_train').exec();
+        const results = await ticketModel.find().exec();
         res.send(results);
     }
 
