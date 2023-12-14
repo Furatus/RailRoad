@@ -1,4 +1,9 @@
 import mongoose from "mongoose";
+import multer from "multer";
+import path from "path";
+
+const __dirname = path.resolve();
+
 export default class trainstation {
   constructor(id, name, open_hour, close_hour, image) {
     this._id = id;
@@ -65,4 +70,46 @@ static async callbackGetTrainStationbyName(req, res) {
     await trainstationModel.findByIdAndUpdate(body.id,{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
     res.send("OK");
   }
+
+  static async callbackSetImage(req, res) {
+    try {
+      res.status(200).send('Image sent to server');
+    }
+     catch(error) {
+      res.status(500).send("500 - Internal server Error");
+    }
+
+  }
 }
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    try {
+      const destination = path.join(__dirname, '../trainstation_images');
+      cb(null, destination);
+    } catch (error) {
+      cb(error, null);
+    }
+  },
+  filename: async (req, file, cb) => {
+    try {
+      const trainstationId = req.query.id;
+      await mongoose.connect(process.env.MONGO_ADDRESS);
+      const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
+      const foundTrainstation = await trainstationModel.findOne({_id:trainstationId}).exec();
+      console.log(foundTrainstation);
+      const fileName = foundTrainstation.name + path.extname(file.originalname);
+
+      const updatedTrainstation = await trainstationModel.updateOne({_id:trainstationId}, {image: fileName}).exec();
+
+      cb(null, fileName);
+    } catch (error) {
+      cb(error, null);
+    }
+  },
+});
+
+export const upload = multer({
+  storage: storage,
+}).single('file'); 
+
