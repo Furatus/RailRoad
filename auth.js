@@ -16,8 +16,7 @@ export default async function mwVerifytoken(req,res,next) {
      try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", user.userSchema);
-        const foundUser = await userModel.findOne({ pseudo: decoded.pseudo }).exec();
-    
+        const foundUser = await userModel.findOne({_id: decoded._id }).exec();
             if (!foundUser) {
                 return res.status(403).send("403 - Access Denied \nInvalid user.");
             }
@@ -97,7 +96,7 @@ export async function mwVerifyIfSelf(req,res,next) {
         const userModel = mongoose.model("user", user.userSchema);
         const foundUser = await userModel.findOne({_id: req.body.id}).exec();
     if (!foundUser || foundUser.pseudo !== username){
-        res.status(403).send("403 - Forbidden \nyou're not allowed to modify other users");
+        res.status(403).send("403 - Forbidden \nyou're not allowed to modify or see other users");
         req.user.isValid = false;
     }
     else {
