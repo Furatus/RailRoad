@@ -6,7 +6,6 @@ this project has been done under two weeks, things may not be perfect
 This project needs a .env which contains several data, such as for now :
 
 MONGO_ADDRESS : this data must be in the env file to specify the address of the database (mongo).
-EXPRESS_PORT : this is a variable used for the whole api running port
 PASSPHRASE_TOKEN : this is a variable which contains the passphrase of your system and will be used to create the jwt.
 
 # External softwares used
@@ -27,6 +26,10 @@ or another way is to use the docker compose and the dockerfile (recommended) :
     - docker compose up 
 
 by using this method, both the app and the database (if you don't edit the code to use another one) will be started
+
+# Filling Database
+
+You can use Mongodb Compass to fill the database, but the json will not be provided in the git.
 
 # Documentation
 
