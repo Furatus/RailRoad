@@ -69,16 +69,17 @@ export class user {
     static async updateUserOnDatabase(id,userObj) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", this.userSchema);
-        await userModel.findByIdAndUpdate(id,{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
-        return userObj;
+        const updatedUser = await userModel.updateOne({_id: id},{email:userObj._email, pseudo:userObj._pseudo, password:userObj._password, role:userObj._role}).exec();
+        console.log(updatedUser);
+        return updatedUser;
     }
 
     // supprimer un utilisateur en utilisant son id
     static async deleteUserOnDatabase(id) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const userModel = mongoose.model("user", this.userSchema);
-        await userModel.deleteOne({ _id: id }).exec();
-        return "Deleted user";
+        const deletedUser = await userModel.deleteOne({ _id: id }).exec();
+        return deletedUser;
     }
 
     // callbacks ici, on gere les requêtes pour toutes les routes (simplement recuperer les donnes de la requete et les envoyer dans une methode correspondante)
@@ -99,6 +100,7 @@ export class user {
         if (req.user.isValid === false) throw new error
         const getId = req.params.id;
         const getUser = await user.getUserOnDatabaseById(getId);
+        if(!getUser) return res.status(404).send("404 - User not found");
         res.status(200);
         res.send(getUser);
         } catch (error) {
@@ -111,7 +113,7 @@ export class user {
         if (req.user.isValid === false) throw new error;
         const getName = req.params.name;
         const getUser = await user.getUserOnDatabaseByName(getName);
-
+        if(!getUser) return res.status(404).send("404 - User not found");
         res.status(200);
         res.send(getUser);
         } catch (error) {
@@ -124,9 +126,12 @@ export class user {
         const userParams = req.body;
         const userObj = new user(userParams.email,userParams.pseudo,userParams.password,userParams.role);
         const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
+        if(updateUser.matchedCount === 0) return res.status(404).send("404 - User not found");
+        if(updateUser.modifiedCount === 0) return res.status(304).send("304 - Not modified");
         res.status(200);
         res.send(updateUser);
         } catch(error) {
+            console.log(error)
             return res.status(500).send("Internal Server Error");
         }
     }
@@ -136,9 +141,11 @@ export class user {
         if (req.user.isValid === false) throw new error
         const reqParams = req.body;
         const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
+        if(deleteUser.deletedCount === 0) return res.status(404).send("404 - User not found");
         res.status(200);
         res.send(deleteUser);
         } catch (error) {
+            console.log(error)
             return res.status(500).send("Internal Server Error");
         }
     }

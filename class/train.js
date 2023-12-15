@@ -16,10 +16,14 @@ export default class train {
 
 
     static async callbackCreateTrain(req, res) {
+        try {
         const trainParams = req.body;
         await train.createTrainOnDatabase(trainParams.name, trainParams.start_station, trainParams.end_station, trainParams.time_of_departure);
         res.status(200);
         res.send("Train Created");
+        } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
     static async createTrainOnDatabase(name, start_station, end_station, time_of_departure) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
@@ -34,28 +38,44 @@ export default class train {
         return "Train Created" + sendTrain;
     }
     static async callbackGetTrainbyName(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const name = req.params.name;
         const trainModel = mongoose.model("train", train.trainSchema);
-        console.log(await trainModel.findOne({ name: name }).exec())
-        res.send('OK')
+        const foundTrain  = await trainModel.findOne({ name: name }).exec();
+        if (!foundTrain) return res.status(404).send("404 - train not found");
+        res.send(foundTrain);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+    }
     }
     static async callbackGetTrainbyId(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const id = req.params.id;
         const trainModel = mongoose.model("train", train.trainSchema);
-        console.log(await trainModel.findOne({ _id: id }).exec())
-        res.send('Train Found')
+        const foundTrain  = await trainModel.findOne({ _id: id }).exec();
+        if (!foundTrain) return res.status(404).send("404 - train not found");
+        res.send(foundTrain);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+    }
     }
     static async callbackDeleteTrainbyId(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const id = req.body.id;
         const trainModel = mongoose.model("train", train.trainSchema);
         const deletionResult = await trainModel.deleteOne({ _id: id }).exec();
         console.log(deletionResult);
+        if(deletionResult.deletedCount === 0) return res.status(404).send("404 - Train not found");
         res.send("Train Deleted");
+        } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
     static async callbackUpdateTrain(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const id = req.body.id;
         const name = req.body.name;
@@ -64,10 +84,16 @@ export default class train {
         const time_of_departure = req.body.time_of_departure;
         const trainModel = mongoose.model("train", train.trainSchema);
         const updateResult = await trainModel.updateOne({ _id: id }, { name: name, start_station: start_station, end_station: end_station, time_of_departure: time_of_departure }).exec();
+        if(updateResult.matchedCount === 0) return res.status(404).send("404 - Train not found");
+        if(updateResult.modifiedCount === 0) return res.status(304).send("304 - Not modified");
         console.log(updateResult);
-        res.send("Train Updated");
+        res.send(updateResult);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
     static async callbackGetAllTrain(req, res) {
+        try {
         const params = req.query;
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const trainModel = mongoose.model("train", train.trainSchema);
@@ -101,13 +127,16 @@ export default class train {
 
             }
         }
-        console.log('les filtres',filters)
-        console.log('le tri',tri)
+        //console.log('les filtres',filters)
+        //console.log('le tri',tri)
 
         const results = await trainModel.find(filters).sort(tri).limit(limit).exec()
         if(JSON.stringify(results)==='[]') {
             res.send("Aucun resultat trouvé")
         }
         else res.send(results);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
 }
