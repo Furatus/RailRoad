@@ -5,6 +5,8 @@ import { mwAuthorizeRole } from "../auth.js";
 import { upload } from "../class/trainstation.js";
 
 const trainstationRouter = Router();
+
+// on définit les routes du trainstation
 trainstationRouter.get("/id/:id", trainstation.callbackGetTrainStationbyId);
 trainstationRouter.post("/create", mwVerifytoken, mwAuthorizeRole(["canCreateTrainstation"]), trainstation.callbackCreateTrainStation);
 trainstationRouter.get("/name/:name", trainstation.callbackGetTrainStationbyName);
