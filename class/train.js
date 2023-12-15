@@ -68,7 +68,7 @@ export default class train {
         const trainModel = mongoose.model("train", train.trainSchema);
         const deletionResult = await trainModel.deleteOne({ _id: id }).exec();
         console.log(deletionResult);
-        if (!deletionResult) return res.status(404).send("404 - train not found");
+        if(deletionResult.deletedCount === 0) return res.status(404).send("404 - Train not found");
         res.send("Train Deleted");
         } catch(error) {
         return res.status(500).send("Internal Server Error");
@@ -84,7 +84,8 @@ export default class train {
         const time_of_departure = req.body.time_of_departure;
         const trainModel = mongoose.model("train", train.trainSchema);
         const updateResult = await trainModel.updateOne({ _id: id }, { name: name, start_station: start_station, end_station: end_station, time_of_departure: time_of_departure }).exec();
-        if (!updateResult) return res.status(404).send("404 - train not found");
+        if(updateResult.matchedCount === 0) return res.status(404).send("404 - Train not found");
+        if(updateResult.modifiedCount === 0) return res.status(304).send("304 - Not modified");
         console.log(updateResult);
         res.send(updateResult);
     } catch(error) {

@@ -75,9 +75,8 @@ static async callbackGetTrainStationbyName(req, res) {
       const id = req.body.id;
       const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
       const deletionResult = await trainstationModel.deleteOne({ _id: id }).exec();
-      console.log(deletionResult);
-      if (!deletionResult) res.status(404).send("404 - trainstation not found");
-      res.status(200).send("OK");
+      if(this.deletionResult.deletedCount === 0) return res.status(404).send("404 - Trainstation not found");
+      res.status(200).send(deletionResult);
     } catch(error) {
       return res.status(500).send("Internal Server Error");
   }
@@ -88,8 +87,9 @@ static async callbackGetTrainStationbyName(req, res) {
     const body = req.body
     console.log(body)
     const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-    const updatedTrainstation = await trainstationModel.findByIdAndUpdate(body.id,{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
-    if (!updatedTrainstation) res.status(404).send("404 - trainstation not found");
+    const updatedTrainstation = await trainstationModel.updateOne({_id:body.id},{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
+    if(updatedTrainstation.matchedCount === 0) return res.status(404).send("404 - Trainstation not found");
+    if(updatedTrainstation.modifiedCount === 0) return res.status(304).send("304 - Not modified");
     res.status(200).send(updatedTrainstation);
     } catch(error) {
     return res.status(500).send("Internal Server Error");
