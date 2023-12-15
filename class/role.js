@@ -20,11 +20,15 @@ export class role {
     }
 
     static async callbackCreateRole(req,res) {
+      try {
       const userParams = req.body;
       const applyRole = new role(userParams.role, userParams.permissions);
       const createRole = await role.createRoleOnDatabase(applyRole);
       res.status(200);
       res.send('Created role on database :' + createRole);
+      } catch(error) {
+        res.status(500).send("500 - internal server error");
+      }
   }
 
         constructor(role, permissions = []) {

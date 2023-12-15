@@ -30,6 +30,7 @@ export default class ticket {
     }
 
     static async callbackCreateTicket(req, res) {
+        try {
         const ticketParams = req.body;
         //Rechercher dans la base un train qui correspond à l'id
         await mongoose.connect(process.env.MONGO_ADDRESS);
@@ -40,35 +41,51 @@ export default class ticket {
             res.status(404);
             res.send("Train not found");
             return;
+            
         }
 
         const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train);
         res.status(200);
         res.send(ticketCreated);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
 
     static async callbackValidateTicketbyId(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const id = req.body.id;
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const updateResult = await ticketModel.updateOne({ _id: id }, { isValidate: true }).exec();
         console.log(updateResult);
         res.send("Ticket Validated");
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
 
     static async callbackGetAllTickets(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const results = await ticketModel.find().exec();
         res.send(results);
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
 
     static async callbackDeleteTicketbyId(req, res) {
+        try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const id = req.body.id;
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const deletionResult = await ticketModel.deleteOne({ _id: id }).exec();
         console.log(deletionResult);
         res.send("Ticket Deleted");
+    } catch(error) {
+        return res.status(500).send("Internal Server Error");
+        }
     }
 }

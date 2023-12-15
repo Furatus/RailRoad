@@ -5,6 +5,7 @@ import { mwAuthorizeRole } from "../auth.js";
 
 const trainRouter = Router();
 
+// on définit les routes pour le train
 trainRouter.post("/create", mwVerifytoken, mwAuthorizeRole(["canCreateTrain"]), train.callbackCreateTrain);
 trainRouter.get("/name/:name",  train.callbackGetTrainbyName);
 trainRouter.get("/id/:id", train.callbackGetTrainbyId);
