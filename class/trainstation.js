@@ -48,8 +48,9 @@ export default class trainstation {
     await mongoose.connect(process.env.MONGO_ADDRESS);
     const id = req.params.id;
     const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-    console.log(await trainstationModel.findOne({_id:id}).exec());
-    res.send('OK');
+    const foundTrainstation = await trainstationModel.findOne({_id:id}).exec();
+    if (!foundTrainstation) return res.status(404).send("404 - trainstation not found")
+    res.status(200).send(foundTrainstation);
   } catch(error) {
     return res.status(500).send("Internal Server Error");
 }
@@ -61,8 +62,9 @@ static async callbackGetTrainStationbyName(req, res) {
   await mongoose.connect(process.env.MONGO_ADDRESS);
   const name = req.params.name;
   const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-  console.log(await trainstationModel.findOne({name: name}).exec())
-  res.send('OK');
+  const foundTrainstation = await trainstationModel.findOne({name: name}).exec();
+    if (!foundTrainstation) return res.status(404).send("404 - trainstation not found");
+    res.status(200).send(foundTrainstation);
   } catch(error) {
   return res.status(500).send("Internal Server Error");
   }
@@ -74,7 +76,8 @@ static async callbackGetTrainStationbyName(req, res) {
       const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
       const deletionResult = await trainstationModel.deleteOne({ _id: id }).exec();
       console.log(deletionResult);
-      res.send("OK");
+      if (!deletionResult) res.status(404).send("404 - trainstation not found");
+      res.status(200).send("OK");
     } catch(error) {
       return res.status(500).send("Internal Server Error");
   }
@@ -85,8 +88,9 @@ static async callbackGetTrainStationbyName(req, res) {
     const body = req.body
     console.log(body)
     const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
-    await trainstationModel.findByIdAndUpdate(body.id,{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
-    res.status(200).send("OK");
+    const updatedTrainstation = await trainstationModel.findByIdAndUpdate(body.id,{name:body.name, open_hour:body.open_hour,close_hour:body.close_hour, image:body.image}).exec();
+    if (!updatedTrainstation) res.status(404).send("404 - trainstation not found");
+    res.status(200).send(updatedTrainstation);
     } catch(error) {
     return res.status(500).send("Internal Server Error");
     }
