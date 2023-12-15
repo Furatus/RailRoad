@@ -58,7 +58,8 @@ export default class ticket {
         const id = req.body.id;
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const updateResult = await ticketModel.updateOne({ _id: id }, { isValidate: true }).exec();
-        if (!updateResult) return res.status(404).send("404 - ticket not found");
+        if(updateResult.matchedCount === 0) return res.status(404).send("404 - Result not found");
+        if(updateResult.modifiedCount === 0) return res.status(304).send("304 - Not modified");
         console.log(updateResult);
         res.send("Ticket Validated");
     } catch(error) {
@@ -70,7 +71,7 @@ export default class ticket {
         try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
-        const results = await ticketModel.find().exec();
+        const results = await ticketModel.find({id_user: req.user._id}).exec();
         if (!results) return res.status(404).send("404 - ticket not found");
         res.status(200).send(results);
     } catch(error) {
@@ -84,7 +85,7 @@ export default class ticket {
         const id = req.body.id;
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const deletionResult = await ticketModel.deleteOne({ _id: id }).exec();
-        if (!deletionResult) return res.status(404).send("404 - ticket not found");
+        if(deletionResult.deletedCount === 0) return res.status(404).send("404 - Trainstation not found");
         console.log(deletionResult);
         res.send("Ticket Deleted");
     } catch(error) {
