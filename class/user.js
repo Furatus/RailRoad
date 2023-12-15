@@ -86,6 +86,7 @@ export class user {
         try {
         const userParams = req.body;
         const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password);
+        if(!createUser) res.status(404).send("404 - User not found");
         if (createUser == false) return res.status(409).send("409 - Conflict\nUser already exists")
         res.status(200);
         res.send('Created user on database ' + createUser);
@@ -99,6 +100,7 @@ export class user {
         if (req.user.isValid === false) throw new error
         const getId = req.params.id;
         const getUser = await user.getUserOnDatabaseById(getId);
+        if(!getUser) res.status(404).send("404 - User not found");
         res.status(200);
         res.send(getUser);
         } catch (error) {
@@ -111,7 +113,7 @@ export class user {
         if (req.user.isValid === false) throw new error;
         const getName = req.params.name;
         const getUser = await user.getUserOnDatabaseByName(getName);
-
+        if(!getUser) res.status(404).send("404 - User not found");
         res.status(200);
         res.send(getUser);
         } catch (error) {
@@ -124,6 +126,7 @@ export class user {
         const userParams = req.body;
         const userObj = new user(userParams.email,userParams.pseudo,userParams.password,userParams.role);
         const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
+        if(!updateUser) res.status(404).send("404 - User not found");
         res.status(200);
         res.send(updateUser);
         } catch(error) {
@@ -136,6 +139,7 @@ export class user {
         if (req.user.isValid === false) throw new error
         const reqParams = req.body;
         const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
+        if(!deleteUser) res.status(404).send("404 - User not found");
         res.status(200);
         res.send(deleteUser);
         } catch (error) {
