@@ -15,16 +15,17 @@ export default class ticket {
         isValidate: Boolean
     });
 
-    static async createTicketOnDatabase(id_user, id_train, isValidate) {
+    static async createTicketOnDatabase(id_user, id_train) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const pushTicket = mongoose.model("ticket", this.ticketSchema);
+        const isValidate = false;
         const sendTicket = new pushTicket({
             id_user: id_user,
             id_train: id_train,
             isValidate: isValidate
         });
         await sendTicket.save();
-        const populatedTicket = await sendTicket.populate('id_user').populate('id_train').execPopulate();
+        //const populatedTicket = await sendTicket.populate('id_user').populate('id_train').execPopulate();
         return "Ticket Created" + populatedTicket;
     }
 
@@ -41,7 +42,7 @@ export default class ticket {
             return;
         }
 
-        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train, "false");
+        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train);
         res.status(200);
         res.send(ticketCreated);
     }
