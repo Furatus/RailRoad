@@ -1,0 +1,448 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: User API
+  description: API for managing users
+paths:
+  /api/user/{id}:
+    get:
+      summary: Get a user by ID
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+  /api/user/{name}:
+    get:
+      summary: Get a user by name
+      tags:
+        - User
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: User not found
+  /api/user/create:
+    post:
+      summary: Create a new user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User created successfully
+        '400':
+          description: Invalid input
+  /api/user/update:
+    patch:
+      summary: Update an existing user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: User not found
+  /api/user/delete:
+    delete:
+      summary: Delete a user
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /api/train/create:
+    post:
+      summary: Create a new train
+      tags:
+        - Train
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Train'
+      responses:
+        '200':
+          description: Train created successfully
+        '400':
+          description: Invalid input
+
+  /api/train/name/{name}:
+    get:
+      summary: Get a train by name
+      tags:
+        - Train
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Train not found
+
+  /api/train/id/{id}:
+    get:
+      summary: Get a train by ID
+      tags:
+        - Train
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Train not found
+
+  /api/train/delete:
+    delete:
+      summary: Delete a train
+      tags:
+        - Train
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Train deleted successfully
+        '404':
+          description: Train not found
+
+  /api/train/update:
+    patch:
+      summary: Update an existing train
+      tags:
+        - Train
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Train'
+      responses:
+        '200':
+          description: Train updated successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Train not found
+
+  /api/train/all:
+    get:
+      summary: Get all trains
+      tags:
+        - Train
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: No trains found
+
+  /api/trainstation/id/{id}:
+    get:
+      summary: Get a train station by ID
+      tags:
+        - Train Station
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Train station not found
+
+  /api/trainstation/create:
+    post:
+      summary: Create a new train station
+      tags:
+        - Train Station
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                open_hour:
+                  type: string
+                close_hour:
+                  type: string
+      responses:
+        '200':
+          description: Train station created successfully
+
+  /api/trainstation/name/{name}:
+    get:
+      summary: Get a train station by name
+      tags:
+        - Train Station
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Train station not found
+
+  /api/trainstation/delete:
+    delete:
+      summary: Delete a train station
+      tags:
+        - Train Station
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Train station deleted successfully
+
+  /api/trainstation/update:
+    patch:
+      summary: Update an existing train station
+      tags:
+        - Train Station
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                open_hour:
+                  type: string
+                close_hour:
+                  type: string
+                image:
+                  type: string
+      responses:
+        '200':
+          description: Train station updated successfully
+
+  /api/trainstation/setimage:
+    post:
+      summary: Set image for a train station
+      tags:
+        - Train Station
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                file:
+                  type: string  # Assuming file path or reference to image file
+      responses:
+        '200':
+          description: Image uploaded successfully
+        '500':
+          description: Internal server error
+
+  /api/ticket/create:
+    post:
+      summary: Create a new ticket
+      tags:
+        - Ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_user:
+                  type: string
+                id_train:
+                  type: string
+      responses:
+        '200':
+          description: Ticket created successfully
+
+  /api/ticket/validate:
+    post:
+      summary: Validate a ticket
+      tags:
+        - Ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Ticket validated successfully
+
+  /api/ticket/all:
+    get:
+      summary: Get all tickets
+      tags:
+        - Ticket
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+  /api/ticket/delete:
+    delete:
+      summary: Delete a ticket
+      tags:
+        - Ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Ticket deleted successfully
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+        pseudo:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+    Train:
+      type: object
+      properties:
+        name:
+          type: string
+        start_station:
+          type: string
+        end_station:
+          type: string
+        time_of_departure:
+          type: string
+          format: date-time
+    TrainStation:
+      type: object
+      properties:
+        name:
+          type: string
+        open_hour:
+          type: string
+        close_hour:
+          type: string
+        image:
+          type: string
+    Ticket:
+      type: object
+      properties:
+        id_user:
+          type: string
+        id_train:
+          type: string
+        isValidate:
+          type: boolean
+    Role:
+      type: object
+      properties:
+        role:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
