@@ -1,13 +1,14 @@
+import mwVerifytoken, { mwAuthorizeRole } from "../auth.js";
 import ticket from "../class/ticket.js";
 import {Router} from "express";
 
 const ticketRouter = Router();
 
 // on définit nos routes pour le ticket
-ticketRouter.post("/create", ticket.callbackCreateTicket);
-ticketRouter.post("/validate", ticket.callbackValidateTicketbyId);
-ticketRouter.get("/all", ticket.callbackGetAllTickets);
-ticketRouter.delete("/delete", ticket.callbackDeleteTicketbyId);
+ticketRouter.post("/create", mwVerifytoken, ticket.callbackCreateTicket);
+ticketRouter.post("/validate", mwVerifytoken, ticket.callbackValidateTicketbyId);
+ticketRouter.get("/all", mwVerifytoken, mwAuthorizeRole(["canReadTicket"]), ticket.callbackGetAllTickets);
+ticketRouter.delete("/delete", mwVerifytoken, mwAuthorizeRole(["canDeleteTicket"]), ticket.callbackDeleteTicketbyId);
 
 
 export default ticketRouter;

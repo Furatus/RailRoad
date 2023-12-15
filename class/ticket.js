@@ -26,7 +26,7 @@ export default class ticket {
         });
         await sendTicket.save();
         //const populatedTicket = await sendTicket.populate('id_user').populate('id_train').execPopulate();
-        return "Ticket Created" + populatedTicket;
+        return sendTicket;
     }
 
     static async callbackCreateTicket(req, res) {
@@ -48,6 +48,7 @@ export default class ticket {
         res.status(200);
         res.send(ticketCreated);
     } catch(error) {
+        console.log(error);
         return res.status(500).send("Internal Server Error");
         }
     }
@@ -59,7 +60,7 @@ export default class ticket {
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
         const updateResult = await ticketModel.updateOne({ _id: id }, { isValidate: true }).exec();
         if(updateResult.matchedCount === 0) return res.status(404).send("404 - Result not found");
-        if(updateResult.modifiedCount === 0) return res.status(304).send("304 - Not modified");
+        if(updateResult.modifiedCount === 0) return res.status(403).send("403 - Ticket already validated");
         console.log(updateResult);
         res.send("Ticket Validated");
     } catch(error) {
@@ -71,10 +72,11 @@ export default class ticket {
         try {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
-        const results = await ticketModel.find({id_user: req.user._id}).exec();
+        const results = await ticketModel.find().exec();
         if (!results) return res.status(404).send("404 - ticket not found");
         res.status(200).send(results);
     } catch(error) {
+        console.log(error);
         return res.status(500).send("Internal Server Error");
         }
     }
