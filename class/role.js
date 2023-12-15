@@ -20,8 +20,8 @@ export class role {
     }
 
     static async callbackCreateRole(req,res) {
-      //const userParams = req.body;
-      const applyRole = new role("admin", ["canUpdateUser","canDeleteUser"])
+      const userParams = req.body;
+      const applyRole = new role(userParams.role, userParams.permissions);
       const createRole = await role.createRoleOnDatabase(applyRole);
       res.status(200);
       res.send('Created role on database :' + createRole);

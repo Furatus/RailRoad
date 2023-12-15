@@ -1,15 +1,24 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 
+
 export class user {
 
     //on definit le schema mongose (statique) pour le reutiliser dans notre classe
     static userSchema = new mongoose.Schema({
+        _id: mongoose.Schema.Types.ObjectId,
         email: String,
         pseudo: String,
         password: String,
         role: String
-    })
+    }, { collection: 'users' })
+
+    static createUserSchema = new mongoose.Schema({
+        email: String,
+        pseudo: String,
+        password: String,
+        role: String
+    }, { collection: 'users' })
 
     // constructeur
     constructor(email, pseudo, password, role) {
@@ -22,18 +31,22 @@ export class user {
     // toutes les methodes se structurent assez similairement
     // a savoir d'abord se connecter a la base pour ensuite envoyer des query dessus
     //methode pour creer un utilisateur sur la database
-    static async createUserOnDatabase(email,pseudo,password,role) {
+    static async createUserOnDatabase(email,pseudo,password) {
+        const checkIfExists = await this.getUserOnDatabaseByName(pseudo);
+        if (checkIfExists) return false;
+
         await mongoose.connect(process.env.MONGO_ADDRESS);
 
-        const pushUser = mongoose.model("user",this.userSchema);
+        const pushUser = mongoose.model("userCreate",this.createUserSchema);
+        const defaultRole = "user";
         const sendUser = new pushUser({
             email: email,
             pseudo: pseudo,
             password: password,
-            role: role
+            role: defaultRole
         });
         await sendUser.save();
-        return "ok";
+        return true;
     }
 
     //methode fetch utilisateur sur la db uniquement par id
@@ -68,13 +81,18 @@ export class user {
         return "Deleted user";
     }
 
-
     // callbacks ici, on gere les requêtes pour toutes les routes (simplement recuperer les donnes de la requete et les envoyer dans une methode correspondante)
     static async callbackCreateUser(req,res) {
+        try {
         const userParams = req.body;
-        const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password,userParams.role);
+        const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password);
+        if (createUser == false) return res.status(409).send("409 - Conflict\nUser already exists")
         res.status(200);
-        res.send('Created user on database :' + createUser);
+        res.send('Created user on database ' + createUser);
+        } catch(error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
     }
 
     static async callbackGetUserById(req,res) {
@@ -85,7 +103,7 @@ export class user {
         res.status(200);
         res.send(getUser);
         } catch (error) {
-        return;
+            return res.status(500).send("Internal Server Error");
         }
     }
 
@@ -98,39 +116,56 @@ export class user {
         res.status(200);
         res.send(getUser);
         } catch (error) {
-            return;
+            return res.status(500).send("Internal Server Error");
         }
     }
 
     static async callbackUpdateUser (req, res) {
+        try {
         const userParams = req.body;
         const userObj = new user(userParams.email,userParams.pseudo,userParams.password,userParams.role);
         const updateUser = await user.updateUserOnDatabase(userParams.id,userObj);
         res.status(200);
         res.send(updateUser);
+        } catch(error) {
+            return res.status(500).send("Internal Server Error");
+        }
     }
     
     static async callbackDeleteUser (req, res) {
+        try {
+        if (req.user.isValid === false) throw new error
         const reqParams = req.body;
         const deleteUser = await user.deleteUserOnDatabase(reqParams.id);
         res.status(200);
         res.send(deleteUser);
+        } catch (error) {
+            return res.status(500).send("Internal Server Error");
+        }
     }
     static async callbackLogin(req, res) {
+        try{
         const username = req.body.username;
-        const password = req.body.password
+        const password = req.body.password;
         if (username === undefined || username === "" || username === null) {
             return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         }
         const databaseUser = await user.getUserOnDatabaseByName(username);
+        console.log(username);
+        console.log(databaseUser);
+        if (!databaseUser) return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         if (databaseUser.password === password) {
-            const token = jwt.sign(databaseUser.pseudo,process.env.PASSPHRASE_TOKEN);
+            const token = jwt.sign({ _id: databaseUser._id },process.env.PASSPHRASE_TOKEN,{expiresIn : "1d"});
             res.status(200);
             res.json(token);
         }
         else {
             res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         }
-        
+    }
+    catch (error) {
+        console.log("erreur ici");
+        return res.status(500).send("500 - Internal server error");
+    }
     }
 }
