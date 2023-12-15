@@ -43,6 +43,7 @@ export default class train {
         const name = req.params.name;
         const trainModel = mongoose.model("train", train.trainSchema);
         const foundTrain  = await trainModel.findOne({ name: name }).exec();
+        if (!foundTrain) return res.status(404).send("404 - train not found");
         res.send(foundTrain);
     } catch(error) {
         return res.status(500).send("Internal Server Error");
@@ -54,6 +55,7 @@ export default class train {
         const id = req.params.id;
         const trainModel = mongoose.model("train", train.trainSchema);
         const foundTrain  = await trainModel.findOne({ _id: id }).exec();
+        if (!foundTrain) return res.status(404).send("404 - train not found");
         res.send(foundTrain);
     } catch(error) {
         return res.status(500).send("Internal Server Error");
@@ -66,6 +68,7 @@ export default class train {
         const trainModel = mongoose.model("train", train.trainSchema);
         const deletionResult = await trainModel.deleteOne({ _id: id }).exec();
         console.log(deletionResult);
+        if (!deletionResult) return res.status(404).send("404 - train not found");
         res.send("Train Deleted");
         } catch(error) {
         return res.status(500).send("Internal Server Error");
@@ -81,6 +84,7 @@ export default class train {
         const time_of_departure = req.body.time_of_departure;
         const trainModel = mongoose.model("train", train.trainSchema);
         const updateResult = await trainModel.updateOne({ _id: id }, { name: name, start_station: start_station, end_station: end_station, time_of_departure: time_of_departure }).exec();
+        if (!updateResult) return res.status(404).send("404 - train not found");
         console.log(updateResult);
         res.send(updateResult);
     } catch(error) {
@@ -122,8 +126,8 @@ export default class train {
 
             }
         }
-        console.log('les filtres',filters)
-        console.log('le tri',tri)
+        //console.log('les filtres',filters)
+        //console.log('le tri',tri)
 
         const results = await trainModel.find(filters).sort(tri).limit(limit).exec()
         if(JSON.stringify(results)==='[]') {
