@@ -90,7 +90,6 @@ export class user {
         res.status(200);
         res.send('Created user on database ' + createUser);
         } catch(error) {
-            console.log(error);
             return res.status(500).send("Internal Server Error");
         }
     }
@@ -151,8 +150,6 @@ export class user {
             return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         }
         const databaseUser = await user.getUserOnDatabaseByName(username);
-        console.log(username);
-        console.log(databaseUser);
         if (!databaseUser) return res.status(401).send("401 - Unauthorized \nusername or password incorrect");
         if (databaseUser.password === password) {
             const token = jwt.sign({ _id: databaseUser._id },process.env.PASSPHRASE_TOKEN,{expiresIn : "1d"});
@@ -164,7 +161,6 @@ export class user {
         }
     }
     catch (error) {
-        console.log("erreur ici");
         return res.status(500).send("500 - Internal server error");
     }
     }

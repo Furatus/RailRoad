@@ -18,9 +18,10 @@ export default class trainstation {
     close_hour: String,
     image: String
   });
-  static async createTrainStationOnDatabase(name, open_hour, close_hour, image) {
+  static async createTrainStationOnDatabase(name, open_hour, close_hour) {
     await mongoose.connect(process.env.MONGO_ADDRESS);
     const pushTrainStation= mongoose.model("trainstation", this.trainstationSchema);
+    const image = "none";
     const sendTrainStation = new pushTrainStation({
       name: name,
       open_hour: open_hour,
@@ -32,7 +33,7 @@ export default class trainstation {
   }
   static async callbackCreateTrainStation(req, res) {
     const trainstationParams = req.body;
-    await trainstation.createTrainStationOnDatabase(trainstationParams.name, trainstationParams.open_hour, trainstationParams.close_hour, trainstationParams.image);
+    await trainstation.createTrainStationOnDatabase(trainstationParams.name, trainstationParams.open_hour, trainstationParams.close_hour);
     res.status(200);
     res.send("Train Station Created");
   }
@@ -97,11 +98,9 @@ const storage = multer.diskStorage({
       await mongoose.connect(process.env.MONGO_ADDRESS);
       const trainstationModel = mongoose.model("trainstation", trainstation.trainstationSchema);
       const foundTrainstation = await trainstationModel.findOne({_id:trainstationId}).exec();
-      console.log(foundTrainstation);
       const fileName = foundTrainstation.name + path.extname(file.originalname);
 
       const updatedTrainstation = await trainstationModel.updateOne({_id:trainstationId}, {image: fileName}).exec();
-
       cb(null, fileName);
     } catch (error) {
       cb(error, null);
@@ -112,4 +111,3 @@ const storage = multer.diskStorage({
 export const upload = multer({
   storage: storage,
 }).single('file'); 
-
