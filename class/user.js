@@ -86,7 +86,6 @@ export class user {
         try {
         const userParams = req.body;
         const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password);
-        if(!createUser) res.status(404).send("404 - User not found");
         if (createUser == false) return res.status(409).send("409 - Conflict\nUser already exists")
         res.status(200);
         res.send('Created user on database ' + createUser);
