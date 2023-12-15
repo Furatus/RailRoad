@@ -88,7 +88,7 @@ export class user {
         const createUser = await user.createUserOnDatabase(userParams.email,userParams.pseudo,userParams.password);
         if (createUser == false) return res.status(409).send("409 - Conflict\nUser already exists")
         res.status(200);
-        res.send('Created user on database' + createUser);
+        res.send('Created user on database ' + createUser);
         } catch(error) {
             console.log(error);
             return res.status(500).send("Internal Server Error");

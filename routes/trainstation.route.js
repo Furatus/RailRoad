@@ -9,7 +9,7 @@ trainstationRouter.get("/id/:id", trainstation.callbackGetTrainStationbyId);
 trainstationRouter.post("/create", mwVerifytoken, mwAuthorizeRole(["canCreateTrainstation"]), trainstation.callbackCreateTrainStation);
 trainstationRouter.get("/name/:name", trainstation.callbackGetTrainStationbyName);
 trainstationRouter.delete("/delete", mwVerifytoken, mwAuthorizeRole(["canDeleteTrainstation"]), trainstation.callbackDeleteTrainStationbyId);
-trainstationRouter.patch("/update", mwVerifytoken, mwAuthorizeRole(["canUpdateTrain"]), trainstation.callbackUpdateTrainStation);
-trainstationRouter.post("/setimage", upload, trainstation.callbackSetImage)
+trainstationRouter.patch("/update", mwVerifytoken, mwAuthorizeRole(["canUpdateTrainstation"]), trainstation.callbackUpdateTrainStation);
+trainstationRouter.post("/setimage", mwVerifytoken, mwAuthorizeRole(["canUpdateTrainstation"]), upload, trainstation.callbackSetImage)
 
 export default trainstationRouter;

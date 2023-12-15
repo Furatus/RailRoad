@@ -18,7 +18,7 @@ export default class trainstation {
     close_hour: String,
     image: String
   });
-  static async createTrainStationOnDatabase(serverAddress, name, open_hour, close_hour, image) {
+  static async createTrainStationOnDatabase(name, open_hour, close_hour, image) {
     await mongoose.connect(process.env.MONGO_ADDRESS);
     const pushTrainStation= mongoose.model("trainstation", this.trainstationSchema);
     const sendTrainStation = new pushTrainStation({
@@ -85,7 +85,7 @@ static async callbackGetTrainStationbyName(req, res) {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     try {
-      const destination = path.join(__dirname, '../trainstation_images');
+      const destination = path.join('trainstation_images/');
       cb(null, destination);
     } catch (error) {
       cb(error, null);
