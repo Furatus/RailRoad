@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import train from "./train.js";
 
 export default class ticket {
     constructor(id, id_user, id_train, isValidate) {
@@ -14,22 +15,34 @@ export default class ticket {
         isValidate: Boolean
     });
 
-    static async createTicketOnDatabase(id_user, id_train, isValidate) {
+    static async createTicketOnDatabase(id_user, id_train) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const pushTicket = mongoose.model("ticket", this.ticketSchema);
+        const isValidate = false;
         const sendTicket = new pushTicket({
             id_user: id_user,
             id_train: id_train,
             isValidate: isValidate
         });
         await sendTicket.save();
-        const populatedTicket = await sendTicket.populate('id_user').populate('id_train').execPopulate();
+        //const populatedTicket = await sendTicket.populate('id_user').populate('id_train').execPopulate();
         return "Ticket Created" + populatedTicket;
     }
 
     static async callbackCreateTicket(req, res) {
         const ticketParams = req.body;
-        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train, ticketParams.isValidate);
+        //Rechercher dans la base un train qui correspond à l'id
+        await mongoose.connect(process.env.MONGO_ADDRESS);
+        const trainModel = mongoose.model("train", train.trainSchema);
+        const trainFound = await trainModel.findOne({ _name: req.body.name }).exec();
+        console.log(trainFound);
+        if (trainFound == null) {
+            res.status(404);
+            res.send("Train not found");
+            return;
+        }
+
+        const ticketCreated = await ticket.createTicketOnDatabase(ticketParams.id_user, ticketParams.id_train);
         res.status(200);
         res.send(ticketCreated);
     }
@@ -46,7 +59,7 @@ export default class ticket {
     static async callbackGetAllTickets(req, res) {
         await mongoose.connect(process.env.MONGO_ADDRESS);
         const ticketModel = mongoose.model("ticket", ticket.ticketSchema);
-        const results = await ticketModel.find().populate('id_user').populate('id_train').exec();
+        const results = await ticketModel.find().exec();
         res.send(results);
     }
 

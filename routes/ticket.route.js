@@ -5,8 +5,8 @@ const ticketRouter = Router();
 
 ticketRouter.post("/create", ticket.callbackCreateTicket);
 ticketRouter.post("/validate", ticket.callbackValidateTicketbyId);
-ticketRouter.get("/all", train.callbackGetAllTickets);
-ticketRouter.delete("/delete", train.callbackDeleteTicketbyId);
+ticketRouter.get("/all", ticket.callbackGetAllTickets);
+ticketRouter.delete("/delete", ticket.callbackDeleteTicketbyId);
 
 
 export default ticketRouter;
