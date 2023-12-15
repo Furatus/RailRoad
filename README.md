@@ -14,12 +14,14 @@ This project uses a mongo Database, in consequence, please provide a mongodb ser
 
 # How to execute ?
 
-You can execute this project in mainly two ways, either by using directly the project :
+You can execute this project in mainly two ways, either by using directly the project (recommended):
 
     - npm i (to download dependencies)
+    - please ensure to have setup the .env file before running
     - npm start (to run the app)
+    - you can use a mongo on docker to execute database or anything you want to run mongo on
 
-or another way is to use the docker compose and the dockerfile (recommended) :
+or another way is to use the docker compose and the dockerfile (need to be debugged sorry) :
 
     (with docker installed and setup correctly)
     - docker compose build .
@@ -29,7 +31,7 @@ by using this method, both the app and the database (if you don't edit the code 
 
 # Filling Database
 
-You can use Mongodb Compass to fill the database, but the json will not be provided in the git.
+You can use Mongodb Compass to fill the database, but the json(s) will not be provided in the git.
 
 # Documentation
 
